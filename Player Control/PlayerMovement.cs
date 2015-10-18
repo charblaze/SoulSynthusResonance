@@ -1143,7 +1143,7 @@ public class PlayerMovement : MonoBehaviour
         }
 
         // Player can change target whenever
-        if (Input.GetButtonDown("Target"))
+        if (Input.GetButtonUp("Target"))
         {
             if (isTargeting)
             {
@@ -1246,11 +1246,11 @@ public class PlayerMovement : MonoBehaviour
 
         if(grounded && isWeaponSheathed && p.isAbleToAttack && !isPerformingAction && !isPerformingQuickAction && !isSpellCasting)
         {
-            if(Input.GetButtonDown("Attack") )
+            if(Input.GetButton("Attack") )
             {
                 BeginCastSpell();
             }
-            if (Input.GetButtonDown("Attack2"))
+            if (Input.GetButton("Attack2"))
             {
                 BeginCastSelfSpell();
             }
@@ -1269,7 +1269,7 @@ public class PlayerMovement : MonoBehaviour
                 }
             }
 
-            if (Input.GetButtonDown("Special"))
+            if (Input.GetButton("Special"))
             {
                 if(!isPerformingAction && !isPerformingQuickAction)
                 {
@@ -1278,7 +1278,7 @@ public class PlayerMovement : MonoBehaviour
             }
 
             // ATTACK
-            if (Input.GetButtonDown("Attack") || QUEUELightAttack)
+            if (Input.GetButton("Attack") || QUEUELightAttack)
             {
                 // if already attacking, queue the next attack
                 bool gotem = false;
@@ -1325,7 +1325,7 @@ public class PlayerMovement : MonoBehaviour
                 }
             }
             // HEAVY ATTACK
-            if (Input.GetButtonDown("Attack2") || QUEUEHeavyAttack)
+            if (Input.GetButton("Attack2") || QUEUEHeavyAttack)
             {
                 bool gotem = false;
                 // if already heavy attacking queue the next heavy attack
@@ -1375,7 +1375,7 @@ public class PlayerMovement : MonoBehaviour
 
 
             // SHEATHE or UNSHEATHE
-            if (Input.GetButtonDown("Sheathe"))
+            if (Input.GetButton("Sheathe"))
             {
                 if (!isPerformingQuickAction)
                 {
@@ -1471,7 +1471,7 @@ public class PlayerMovement : MonoBehaviour
                 // JUMP
                 if (isDashing && p.isAbleToAttack)
                 {
-                    if (Input.GetButtonDown("Jump"))
+                    if (Input.GetButton("Jump"))
                     {
                         if (CURRENTACTION != null)
                         {
