@@ -73,7 +73,9 @@ public class PlayerMovement : MonoBehaviour
     // SHEATHING IN RPG NEEDS TO GET LOCAL POS / ROT DEPENDING ON THE WEAPON TYPE
     public void instantiateSheathedSword()
     {
-        if(sword != null)
+
+        AudioSource.PlayClipAtPoint(sheathesound, transform.position, 0.6f);
+        if (sword != null)
         {
             Destroy(sword);
         }
@@ -127,6 +129,8 @@ public class PlayerMovement : MonoBehaviour
     /// </summary>
     void instantiateUnsheathedSword()
     {
+
+        AudioSource.PlayClipAtPoint(sheathesound, transform.position, 0.6f);
         if (sword != null)
         {
             Destroy(sword);
@@ -214,12 +218,15 @@ public class PlayerMovement : MonoBehaviour
     }
 
     bool isRolling = false;
-    // ROLL speed and distance affected by RPG stat (TO BE IMPLEMENTED)
+    public AudioClip RollSound;
+    void PlayRollSound()
+    {
+        AudioSource.PlayClipAtPoint(RollSound, transform.position);
+    }
 
-    // needs PUBLIC ANIMATION CLIP TO FIND OUT WAITFORSECONDS TIME
     IEnumerator Roll()
     {
-
+        PlayRollSound();
         p.LoseStamina(15f);
         print("ROLLING");
         cc.constraints = RigidbodyConstraints.FreezeRotation;
@@ -246,7 +253,7 @@ public class PlayerMovement : MonoBehaviour
 
     IEnumerator StrafeRoll(float v, float h)
     {
-
+        PlayRollSound();
         p.LoseStamina(15f);
         print("STRAFEROLLING");
         isRolling = true;
@@ -275,12 +282,18 @@ public class PlayerMovement : MonoBehaviour
         isRolling = false;
     }
 
+    public AudioClip sheathesound;
+
+
     // needs PUBLIC ANIMATION CLIP TO FIND OUT WAITFORSECONDS TIME
     IEnumerator SheatheWeapon()
     {
+
         isPerformingQuickAction = true;
         anm.SetTrigger("Sheath");
-        yield return new WaitForSeconds(0.5f);
+        yield return new WaitForSeconds(0.25f);
+
+        yield return new WaitForSeconds(0.25f);
         // put sword in hand
         Destroy(sword);
         instantiateSheathedSword();
@@ -297,7 +310,9 @@ public class PlayerMovement : MonoBehaviour
     {
         isPerformingQuickAction = true;
         anm.SetTrigger("Unsheath");
-        yield return new WaitForSeconds(0.5f);
+        yield return new WaitForSeconds(0.25f);
+
+        yield return new WaitForSeconds(0.25f);
         // put sword on back
         Destroy(sword);
         instantiateUnsheathedSword();

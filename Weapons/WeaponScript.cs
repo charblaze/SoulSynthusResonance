@@ -11,6 +11,9 @@ public class WeaponScript : MonoBehaviour
     public string WeaponSpecialDescrip;
     public string WeaponParentSheathed;
     public string WeaponParent;
+    public AudioClip[] swingSound;
+    public AudioClip hitSound;
+    public AudioClip hitSoundWall;
     public Vector3 WeaponLocationSheathed;
     public Quaternion WeaponRotationSheathed;
     public Vector3 WeaponLocation;
@@ -75,12 +78,26 @@ public class WeaponScript : MonoBehaviour
     public AnimationClip WeaponHoldTarget, WeaponHold, HeavyATK, HeavyATK2, LightATK, LightATK2, LightATK3, ChargeAttack, RollAttack, SpecialAttack, Sheathe, Unsheathe;
     Dictionary<GameObject, bool> hitGOs = new Dictionary<GameObject, bool>();
 
+    bool playedswoosh = true;
+
+    void PlaySwingSound()
+    {
+        int i = Random.Range(0, swingSound.Length - 1);
+        float f = Random.Range(0.7f, 1f);
+        AudioSource.PlayClipAtPoint(swingSound[i], transform.position, f);
+    }
+
     IEnumerator HitCor()
     {
         while (true)
         {
             if (isLethal)
             {// EACH FRAME
+                if (!playedswoosh)
+                {
+                    PlaySwingSound();
+                    playedswoosh = true;
+                }
                 List<Vector3> nodes1 = new List<Vector3>();
                 for (int c = 0; c < nodes.Length; ++c)
                 {
@@ -104,6 +121,7 @@ public class WeaponScript : MonoBehaviour
                         // HITS
                         if(hits[d].transform.tag == "Enemy")
                         {
+                            AudioSource.PlayClipAtPoint(hitSound, hits[d].transform.position);
                             Character ch = hits[d].transform.gameObject.GetComponent<Character>();
                             // blood effects
                             GameObject efx = Instantiate(Resources.Load("Effects/WeaponSparks"), hits[d].point, transform.rotation) as GameObject;
@@ -198,7 +216,7 @@ public class WeaponScript : MonoBehaviour
             } else
             {
                     hitGOs.Clear();
-                
+                playedswoosh = false;
                 yield return new WaitForEndOfFrame();
             }
         }
@@ -442,6 +460,8 @@ public class WeaponScript : MonoBehaviour
         {
             if (collision.contacts.Length >= MaxCollisionsForStun)
             {
+
+                AudioSource.PlayClipAtPoint(hitSoundWall, transform.position);
                 pm.GetHurtAnimation(PlayerMovement.TakeDamageAnimationType.NORMAL, collision.contacts[0].point);
             }
         }

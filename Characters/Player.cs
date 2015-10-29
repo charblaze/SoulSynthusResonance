@@ -76,9 +76,10 @@ public class Player : Character
         DeathRES = 1;
         CurrentStamina = MaximumStamina;
         EquippedWeapon = "Great Scythe";
+        EquippedHat = "Sancta Hat";
         CurrentHealth = MaximumHealth;
         pm = GetComponent<PlayerMovement>();
-        //LoadHat();
+        LoadHat();
         pi.AddWeapon("Great Scythe");
         pi.AddWeapon("Edged Rapier", 1);
         pi.AddWeapon("Claymore");
@@ -427,6 +428,37 @@ public class Player : Character
         unboostedstamregen = StaminaRegenPerSecond;
     }
 
+    public AudioClip[] takedmgS;
+    public AudioClip[] takedmgextraS;
+    public AudioClip blockS;
+    public AudioClip parryS;
+
+    void TakeHitSound()
+    {
+        int i = Random.Range(0, takedmgS.Length-1);
+        float f = Random.Range(0.8f, 1f);
+        AudioSource.PlayClipAtPoint(takedmgS[i], transform.position, f);
+        if(i == (takedmgS.Length - 1))
+        {
+            AudioSource.PlayClipAtPoint(takedmgextraS[0], transform.position, 1);
+        }
+        if(i == 0)
+        {
+            AudioSource.PlayClipAtPoint(takedmgextraS[1], transform.position, 1);
+        }
+    }
+
+    void BlockSound()
+    {
+        float f = Random.Range(0.5f, 1f);
+        AudioSource.PlayClipAtPoint(blockS, transform.position, f);
+    }
+
+    void ParrySound()
+    {
+        AudioSource.PlayClipAtPoint(parryS, transform.position, 1f);
+
+    }
     
     /// <summary>
     /// Take A Hit (damage) from any source. Relocates damage if the player is blocking. Calculates resistances and then subtracts from health/stamina
@@ -460,6 +492,7 @@ public class Player : Character
         {
             LoseHealth(totaldamage);
         }
+        TakeHitSound();
     }
 
     /// <summary>
@@ -475,6 +508,7 @@ public class Player : Character
         {
             WeaponScript ws = pm.sword.GetComponent<WeaponScript>();
             ws.RecalculateBlocking();
+            BlockSound();
             // TO DO PUT IN BLOCK DAMPENING
             CurrentStamina -= DAMAGE_Te * (1 - ws.TOTALBLOCK_Te) + DAMAGE_Lu * (1 - ws.TOTALBLOCK_Lu) + DAMAGE_So * (1 - ws.TOTALBLOCK_So) + DAMAGE_In * (1 - ws.TOTALBLOCK_In) + DAMAGE_Ch * (1 - ws.TOTALBLOCK_Ch) + DAMAGE_Li * (1 - ws.TOTALBLOCK_Ch) + DAMAGE_De * (1 - ws.TOTALBLOCK_De);
             if(CurrentStamina < 0)
