@@ -18,8 +18,7 @@ public class Enemy : Character {
 
     // The Weapon (or damaging tool) of this enemy.
     public EnemyWeapon ew;
-
-    LookAtIK lik;
+    
     
     /// <summary>
     /// ANIMATION EVENT: makes the enemy's weapon lethal
@@ -62,7 +61,6 @@ public class Enemy : Character {
         ChillRES = 10;
         rb = GetComponent<Rigidbody>();
         nma = GetComponent<NavMeshAgent>();
-        lik = GetComponent<LookAtIK>();
         //CURRENTACTION = StartCoroutine(RunTowardsPlayer());
 
         // ADD ALL POSSIBLE ACTIONS UNDER UI HERE
@@ -99,16 +97,25 @@ public class Enemy : Character {
             }
 
         }
+        float dot = Vector3.Dot((HBPOS.position + Vector3.up * 0.5f - Camera.main.transform.position).normalized, Camera.main.transform.forward);
+        if(dot > 0)
+        {
+            HBContainer.SetActive(true);
+            HBContainer.transform.position = Camera.main.WorldToScreenPoint(HBPOS.position + Vector3.up * 0.5f);
+            HB.offsetMax = new Vector2(-(1 - (float)(CurrentHealth) / (float)(MaximumHealth)) * 200f, 2);
+        } else
+        {
+            HBContainer.SetActive(false);
+        }
         if (!isAggroed)
         {
             HBContainer.SetActive(false);
 
-        } else
+        }
+        else
         {
             HBContainer.SetActive(true);
         }
-        HBContainer.transform.position = Camera.main.WorldToScreenPoint(HBPOS.position + Vector3.up * 0.5f);
-        HB.offsetMax = new Vector2(- (1 - (float)(CurrentHealth) / (float)(MaximumHealth)) * 200f, 2);
     }
 
     // COROUTINES OF ALL AVAILIBLE AI ACTIONS
@@ -304,7 +311,7 @@ public class Enemy : Character {
     Dictionary<string, float> Priorities = new Dictionary<string, float>();
     public bool isActioning = false;
     // Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
         tencur += Time.deltaTime * 0.5f;
         if(tencur > Tenacity)
@@ -312,13 +319,6 @@ public class Enemy : Character {
             tencur = Tenacity;
         }
         UpdateGUI();
-        if (isAggroed)
-        {
-            lik.solver.target = player.transform;
-        } else
-        {
-            lik.solver.IKPositionWeight = 0f;
-        }
         if (customVelocity)
         {
             rb.AddForce(cveldir, ForceMode.Impulse);

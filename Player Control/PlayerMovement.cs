@@ -186,6 +186,33 @@ public class PlayerMovement : MonoBehaviour
         isPerformingAction = false;
     }
 
+    IEnumerator Slide()
+    {
+        PlayRollSound();
+        p.LoseStamina(0f);
+        print("SLIDING");
+        cc.constraints = RigidbodyConstraints.FreezeRotation;
+        isPerformingAction = true;
+        isRolling = true;
+        anm.SetTrigger("JumpTrigger");
+        customvelocity = true;
+        float rolltime = 1.2f * p.Swiftness;
+        // IMMUNITY
+        p.GrantImmunity(0.8f);
+        customveloc = new Vector3(transform.forward.x * runspeed * 2, cc.velocity.y, transform.forward.z * runspeed * 2);
+        // .583 of total roll time
+        yield return new WaitForSeconds(rolltime * .583f);
+        customveloc = new Vector3(transform.forward.x * runspeed / 2, cc.velocity.y, transform.forward.z * runspeed / 2);
+        // .283 of total roll time
+        yield return new WaitForSeconds(rolltime * .283f);
+        customveloc = new Vector3(0, cc.velocity.y, 0);
+        // .133 of total roll time
+        yield return new WaitForSeconds(rolltime * .133f);
+        customvelocity = false;
+        isPerformingAction = false;
+        isRolling = false;
+    }
+
     // when landed, character has 0 velocity
     bool landstun = false;
     // Land lag, time affected by RPG stat (TO BE IMPLEMENTED)
@@ -1150,11 +1177,11 @@ public class PlayerMovement : MonoBehaviour
         Vector2 dirchecker = new Vector2(Input.GetAxis("Vertical"), Input.GetAxis("Horizontal"));
         if(dirchecker.magnitude < 0.3 || Input.GetButton("Walk"))
         {
-            Walking = 0f;
+            Walking = Mathf.Lerp(Walking, 0f, 2 *Time.deltaTime);
             moveSpeed = walkspeed;
         } else
         {
-            Walking = p.RunSpeed / 4.5f;
+            Walking = Mathf.Lerp(Walking, p.RunSpeed / 4.5f, 3 * Time.deltaTime);
         }
 
         // Player can change target whenever
@@ -1492,7 +1519,7 @@ public class PlayerMovement : MonoBehaviour
                         {
                             StopCoroutine(CURRENTACTION);
                         }
-                        CURRENTACTION = StartCoroutine(Jump());
+                        CURRENTACTION = StartCoroutine(Slide());
                     }
                 }
             }
