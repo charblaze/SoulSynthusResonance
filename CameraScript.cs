@@ -73,8 +73,8 @@ public class CameraScript : MonoBehaviour
                 Vector3 position = rotation * negDistance + target.position;
 
 
-                transform.rotation = rotation;
-                transform.position = position;
+                transform.rotation = Quaternion.Lerp(transform.rotation, rotation, Time.deltaTime * 10f);
+                transform.position = Vector3.Lerp(transform.position, position, Time.deltaTime * 10f);
             }
         } else
         {

@@ -18,7 +18,9 @@ public class Enemy : Character {
 
     // The Weapon (or damaging tool) of this enemy.
     public EnemyWeapon ew;
-    
+
+    // the target loc
+    public Transform targetloc;
     
     /// <summary>
     /// ANIMATION EVENT: makes the enemy's weapon lethal
@@ -65,6 +67,8 @@ public class Enemy : Character {
 
         // ADD ALL POSSIBLE ACTIONS UNDER UI HERE
         Priorities.Add("Attack1", 0f);
+        Priorities.Add("Attack2", 0f);
+        Priorities.Add("Attack3", 0f);
         Priorities.Add("NoAction", 0f);
 
 
@@ -98,23 +102,28 @@ public class Enemy : Character {
 
         }
         float dot = Vector3.Dot((HBPOS.position + Vector3.up * 0.5f - Camera.main.transform.position).normalized, Camera.main.transform.forward);
-        if(dot > 0)
+        if (HBContainer != null)
         {
-            HBContainer.SetActive(true);
-            HBContainer.transform.position = Camera.main.WorldToScreenPoint(HBPOS.position + Vector3.up * 0.5f);
-            HB.offsetMax = new Vector2(-(1 - (float)(CurrentHealth) / (float)(MaximumHealth)) * 200f, 2);
-        } else
-        {
-            HBContainer.SetActive(false);
-        }
-        if (!isAggroed)
-        {
-            HBContainer.SetActive(false);
+            if (dot > 0)
+            {
+                HBContainer.SetActive(true);
+                HBContainer.transform.position = Camera.main.WorldToScreenPoint(HBPOS.position);
+                HB.offsetMax = new Vector2(-(1 - (float)(CurrentHealth) / (float)(MaximumHealth)) * 200f, 2);
 
-        }
-        else
-        {
-            HBContainer.SetActive(true);
+            }
+            else
+            {
+                HBContainer.SetActive(false);
+            }
+            if (!isAggroed)
+            {
+                HBContainer.SetActive(false);
+
+            }
+            else
+            {
+                HBContainer.SetActive(true);
+            }
         }
     }
 
@@ -134,6 +143,26 @@ public class Enemy : Character {
         CANCAST = false;
         isPerformingAction = true;
         anm.SetTrigger("AttackTrigger1");
+        yield return new WaitForSeconds(3f);
+        isPerformingAction = false;
+        CANCAST = true;
+    }
+
+    IEnumerator Attack2()
+    {
+        CANCAST = false;
+        isPerformingAction = true;
+        anm.SetTrigger("AttackTrigger2");
+        yield return new WaitForSeconds(3f);
+        isPerformingAction = false;
+        CANCAST = true;
+    }
+
+    IEnumerator Attack3()
+    {
+        CANCAST = false;
+        isPerformingAction = true;
+        anm.SetTrigger("AttackTrigger3");
         yield return new WaitForSeconds(3f);
         isPerformingAction = false;
         CANCAST = true;
@@ -365,11 +394,15 @@ public class Enemy : Character {
             if (dfp < 3)
             {
                 Priorities["Attack1"] += 2f;
+                Priorities["Attack2"] += 2f;
+                Priorities["Attack3"] += 2f;
             }
             else
             {
                 Priorities["NoAction"] += 2.3f;
                 Priorities["Attack1"] += 1f;
+                Priorities["Attack2"] += 1f;
+                Priorities["Attack3"] += 1f;
             }
 
 
@@ -399,6 +432,10 @@ public class Enemy : Character {
 
     public override void Die()
     {
+        if(targetloc!= null)
+        {
+            Destroy(targetloc.gameObject);
+        }
         Destroy(HBContainer);
         if(CURRENTACTION!= null)
         {

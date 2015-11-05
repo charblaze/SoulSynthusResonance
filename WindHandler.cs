@@ -6,6 +6,7 @@ public class WindHandler : MonoBehaviour {
     public Animator hair;
 
     Vector3 wind = Vector3.zero;
+    Vector3 zswind, zdrandom;
 
 	// Use this for initialization
 	void Start () {
@@ -18,6 +19,12 @@ public class WindHandler : MonoBehaviour {
         hair.SetFloat("WindZ", -x);
         hair.SetFloat("WindX", z);
 	}
+
+    public void NewCape()
+    {
+        cape.externalAcceleration = zswind;
+        cape.randomAcceleration = zdrandom;
+    }
 
     void OnTriggerEnter(Collider other)
     {
@@ -33,6 +40,8 @@ public class WindHandler : MonoBehaviour {
 
             cape.externalAcceleration = zs.Wind;
             cape.randomAcceleration = zs.WindRANDOM;
+            zswind = zs.Wind;
+            zdrandom = zs.WindRANDOM;
         }
     }
 }

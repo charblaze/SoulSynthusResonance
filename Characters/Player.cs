@@ -25,7 +25,7 @@ public class Player : Character
     // name of currently equipped weapon. Must be a valid name
     public string EquippedWeapon;
 
-    public string EquippedHat, EquippedAmulet, EquippedTunic, EquippedRing1, EquippedRing2;
+    public string EquippedHat, EquippedAmulet, EquippedTunic, EquippedRing1, EquippedRing2, EquippedArmor, EquippedCape;
 
     // Multiplied by all spell base damage.
     public float spellPower = 1f;
@@ -77,12 +77,21 @@ public class Player : Character
         CurrentStamina = MaximumStamina;
         EquippedWeapon = "Great Scythe";
         EquippedHat = "Sancta Hat";
+        EquippedCape = "White Banner";
+        EquippedRing1 = "None";
+        EquippedRing2 = "None";
+        EquippedArmor = "Tightened";
+        EquippedAmulet = "None";
         CurrentHealth = MaximumHealth;
         pm = GetComponent<PlayerMovement>();
         LoadHat();
         pi.AddWeapon("Great Scythe");
         pi.AddWeapon("Edged Rapier", 1);
         pi.AddWeapon("Claymore");
+        pi.AddHat("None");
+        pi.AddAmulet("None");
+        pi.AddRing("None");
+        pi.AddRing("None");
         pi.AddHat("Regia Hat");
         pi.AddHat("Sancta Hat");
         pi.AddAmulet("Sapphire Amulet");
@@ -90,17 +99,25 @@ public class Player : Character
         pi.AddRing("Ruby Ring");
         pi.AddRing("Ruby Ring");
         pi.AddTunic("Chain Curiass");
+        pi.AddArmor("Tightened");
+        pi.AddArmor("Magister");
+        pi.AddCape("None");
+        pi.AddCape("White Banner");
+        pi.AddCape("Black Banner");
     }
 
     // INSTANCE OF CURRENTLY EQUIPPED HAT
     public GameObject Hat;
+
+    // location of neck
+    public Transform Neck;
 
     /// <summary>
     /// Reloads the player's hat that is currently equipped
     /// </summary>
     public void LoadHat()
     {
-        if(EquippedHat == null || EquippedHat == "None")
+        if(EquippedHat == null)
         {
             return;
         }
@@ -115,8 +132,49 @@ public class Player : Character
         Hat.transform.localRotation = h.rot;
     }
 
+    public void LoadArmor()
+    {
+        if (EquippedArmor == null || EquippedArmor == "None")
+        {
+            return;
+        }
+        GameObject MODELr = Instantiate(Resources.Load("Armors/" + EquippedArmor)) as GameObject;
+        Equipm e = MODELr.transform.GetChild(0).gameObject.GetComponent<Equipm>();
+        e.target = MODEL.transform.GetChild(0).gameObject;
+        MODELr.transform.GetChild(1).gameObject.SetActive(false);
+        MODELr.transform.SetParent(gameObject.transform);
+        MODELr.transform.position = MODEL.transform.position;
+        MODELr.transform.rotation = MODEL.transform.rotation;
+        e.AssignBones();
+        if (MODEL != null)
+        {
+            Destroy(MODEL);
+        }
+        MODEL = MODELr;
+    }
+
+    public void LoadCape()
+    {
+        if(EquippedCape == null)
+        {
+            return;
+        }
+        GameObject cap = Instantiate(Resources.Load("Capes/" + EquippedCape)) as GameObject;
+        cap.transform.SetParent(Neck);
+        cap.transform.position = CAPE.transform.position;
+        cap.transform.rotation = CAPE.transform.rotation;
+        cap.GetComponent<Cloth>().capsuleColliders = COLLS;
+        Destroy(CAPE);
+        CAPE = cap;
+        GetComponent<WindHandler>().cape = CAPE.GetComponent<Cloth>();
+        GetComponent<WindHandler>().NewCape();
+    }
+
     // INSTANCES OF PLAYERS EQUIPMENT
-    public GameObject Amulet, Tunic, Ring1, Ring2;
+    public GameObject Amulet, Tunic, Ring1, Ring2, MODEL, CAPE;
+
+    // COLLIDERS FOR CAPES AND HITS
+    public CapsuleCollider[] COLLS;
 
     /// <summary>
     /// Reloads the player's amulet that is currently equipped
@@ -451,12 +509,12 @@ public class Player : Character
     void BlockSound()
     {
         float f = Random.Range(0.5f, 1f);
-        AudioSource.PlayClipAtPoint(blockS, transform.position, f);
+       // AudioSource.PlayClipAtPoint(blockS, transform.position, f);
     }
 
     void ParrySound()
     {
-        AudioSource.PlayClipAtPoint(parryS, transform.position, 1f);
+       // AudioSource.PlayClipAtPoint(parryS, transform.position, 1f);
 
     }
     

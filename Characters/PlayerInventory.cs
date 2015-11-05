@@ -12,8 +12,38 @@ public class PlayerInventory : MonoBehaviour {
     public List<Amulet> Amulets = new List<Amulet>();
     public List<Tunic> Tunics = new List<Tunic>();
     public List<Ring> Rings = new List<Ring>();
+    public List<Armor> Armors = new List<Armor>();
+    public List<Cape> Capes = new List<Cape>();
     PlayerMovement pm;
     Player p;
+
+    public struct Armor
+    {
+        public string ID;
+        public string Description;
+    }
+
+    public void AddArmor(string id)
+    {
+        Armor x = new Armor();
+        x.ID = id;
+        x.Description = "An Armor Set";
+        Armors.Add(x);
+    }
+
+    public struct Cape
+    {
+        public string ID;
+        public string Description;
+    }
+
+    public void AddCape(string id)
+    {
+        Cape x = new Cape();
+        x.ID = id;
+        x.Description = "A cape";
+        Capes.Add(x);
+    }
 
     public struct Amulet
     {

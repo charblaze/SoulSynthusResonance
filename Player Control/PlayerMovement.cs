@@ -1094,16 +1094,19 @@ public class PlayerMovement : MonoBehaviour
         }
         if (runHELD && p.isAbleToDashAgain)
         {
-
-            isDashing = true;
-            // these lines are necessary. Only dash if you're actually dashing..
-            if (anm.GetCurrentAnimatorStateInfo(0).IsName("Dashing") && p.isAbleToAttack)
+            if (moveSpeed != walkspeed)
             {
+                isDashing = true;
+                // these lines are necessary. Only dash if you're actually dashing..
+                if (anm.GetCurrentAnimatorStateInfo(0).IsName("Dashing") && p.isAbleToAttack)
+                {
 
-                moveSpeed = dashspeed;
-            } else
-            {
-                moveSpeed = runspeed;
+                    moveSpeed = dashspeed;
+                }
+                else
+                {
+                    moveSpeed = runspeed;
+                }
             }
         }
         else

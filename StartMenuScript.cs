@@ -257,18 +257,19 @@ public class StartMenuScript : MonoBehaviour {
     {
         p.EquippedHat = pi.Hats[c].ID;
         p.LoadHat();
+        EquipPaneChanged(EquipmentPaneOpen);
     }
 
     public void EquipAmulet(int c)
     {
         p.EquippedAmulet = pi.Amulets[c].ID;
-        p.LoadAmulet();
+        p.LoadAmulet(); EquipPaneChanged(EquipmentPaneOpen);
     }
 
     public void EquipTunic(int c)
     {
         p.EquippedTunic = pi.Tunics[c].ID;
-        p.LoadTunic();
+        p.LoadTunic(); EquipPaneChanged(EquipmentPaneOpen);
     }
 
     public void EquipRing(int c, int slot)
@@ -282,6 +283,19 @@ public class StartMenuScript : MonoBehaviour {
             p.EquippedRing2 = pi.Rings[c].ID;
             p.LoadRing2();
         }
+        EquipPaneChanged(EquipmentPaneOpen);
+    }
+
+    public void EquipArmor(int c)
+    {
+        p.EquippedArmor = pi.Armors[c].ID;
+        p.LoadArmor(); EquipPaneChanged(EquipmentPaneOpen);
+    }
+
+    public void EquipCape(int c)
+    {
+        p.EquippedCape = pi.Capes[c].ID;
+        p.LoadCape(); EquipPaneChanged(EquipmentPaneOpen);
     }
 
     void AddListenerHat(Button b, int c)
@@ -302,6 +316,16 @@ public class StartMenuScript : MonoBehaviour {
         b.onClick.AddListener(() => EquipRing(c, d));
     }
 
+    void AddListenerArmor(Button b, int c)
+    {
+        b.onClick.AddListener(() => EquipArmor(c));
+    }
+
+    void AddListenerCape(Button b, int c)
+    {
+        b.onClick.AddListener(() => EquipCape(c));
+    }
+
     public IEnumerator PopulateEquipment()
     {
         yield return new WaitForFixedUpdate();
@@ -310,6 +334,7 @@ public class StartMenuScript : MonoBehaviour {
         {
             Destroy(child.gameObject);
         }
+        bool eqd = false;
         // equipbutton
         if (EquipmentPaneOpen == "Hats")
         {
@@ -321,6 +346,13 @@ public class StartMenuScript : MonoBehaviour {
                 t.text = pi.Hats[c].ID;
                 Button b = butt.GetComponent<Button>();
                 AddListenerHat(b, c);
+                if(pi.Hats[c].ID == p.EquippedHat && !eqd)
+                {
+                    ColorBlock d = b.colors;
+                    d.normalColor = Color.yellow;
+                    b.colors = d;
+                    eqd = true;
+                }
             }
         } else if(EquipmentPaneOpen == "Amulets")
         {
@@ -332,6 +364,12 @@ public class StartMenuScript : MonoBehaviour {
                 t.text = pi.Amulets[c].ID;
                 Button b = butt.GetComponent<Button>();
                 AddListenerAmulet(b, c);
+                if (pi.Amulets[c].ID == p.EquippedAmulet && !eqd)
+                {
+                    ColorBlock d = b.colors;
+                    d.normalColor = Color.yellow;
+                    b.colors = d; eqd = true;
+                }
             }
         }
         else if (EquipmentPaneOpen == "Tunics")
@@ -365,6 +403,12 @@ public class StartMenuScript : MonoBehaviour {
                 t.text = pi.Rings[c].ID;
                 Button b = butt.GetComponent<Button>();
                 AddListenerRing(b, c, 1);
+                if (pi.Rings[c].ID == p.EquippedRing1 && !eqd)
+                {
+                    ColorBlock d = b.colors;
+                    d.normalColor = Color.yellow;
+                    b.colors = d; eqd = true;
+                }
             }
         }
         else if (EquipmentPaneOpen == "Rings2")
@@ -386,6 +430,47 @@ public class StartMenuScript : MonoBehaviour {
                 t.text = pi.Rings[c].ID;
                 Button b = butt.GetComponent<Button>();
                 AddListenerRing(b, c, 2);
+                if (pi.Rings[c].ID == p.EquippedRing2 && !eqd)
+                {
+                    ColorBlock d = b.colors;
+                    d.normalColor = Color.yellow;
+                    b.colors = d; eqd = true;
+                }
+            }
+        } else if (EquipmentPaneOpen == "Armor")
+        {
+            for (int c = 0; c < pi.Armors.Count; ++c)
+            {
+                GameObject butt = Instantiate(Resources.Load("UI/EquipButton")) as GameObject;
+                butt.transform.SetParent(contentEQU);
+                Text t = butt.transform.GetChild(0).GetComponent<Text>();
+                t.text = pi.Armors[c].ID;
+                Button b = butt.GetComponent<Button>();
+                AddListenerArmor(b, c);
+                if (pi.Armors[c].ID == p.EquippedArmor && !eqd)
+                {
+                    ColorBlock d = b.colors;
+                    d.normalColor = Color.yellow;
+                    b.colors = d; eqd = true;
+                }
+            }
+        }
+        else if (EquipmentPaneOpen == "Cape")
+        {
+            for (int c = 0; c < pi.Capes.Count; ++c)
+            {
+                GameObject butt = Instantiate(Resources.Load("UI/EquipButton")) as GameObject;
+                butt.transform.SetParent(contentEQU);
+                Text t = butt.transform.GetChild(0).GetComponent<Text>();
+                t.text = pi.Capes[c].ID;
+                Button b = butt.GetComponent<Button>();
+                AddListenerCape(b, c);
+                if (pi.Capes[c].ID == p.EquippedCape && !eqd)
+                {
+                    ColorBlock d = b.colors;
+                    d.normalColor = Color.yellow;
+                    b.colors = d; eqd = true;
+                }
             }
         }
     }
