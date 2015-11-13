@@ -1,5 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
+using UnityEngine.UI;
 using RootMotion.FinalIK;
 
 public class PlayerMovement : MonoBehaviour
@@ -16,6 +18,46 @@ public class PlayerMovement : MonoBehaviour
 
     // these are animations that are needed to tell time
     public AnimationClip RollAnim, LandAnim;
+
+    public int spellSlotsL = 4, spellSlotsR = 4;
+
+    // SPELL ORDER: Offensive, then Defensive, L, 1, 2, 3, R, Z, X, C
+
+    // spells to be cast on mouse click / keyboard
+    public string[] ReadySpells;
+
+    public Image[] SpellImages;
+    public Text[] SpellChargesUI;
+    public RectTransform[] SpellCDsUIBox;
+    public Text[] SpellCDsUI;
+
+    public float[] SpellCDs;
+    public float[] SpellTimers;
+
+    public int[] SpellCharges;
+
+    // cost percentage... ? ! :D
+    public float[] SpellCosts;
+
+    public void UpdateSpellUI()
+    {
+        for(int c = 0; c < SpellImages.Length; ++c)
+        {
+            SpellImages[c].enabled = true;
+        }
+        for(int c = 0; c < ReadySpells.Length; ++c)
+        {
+            SpellImages[c].sprite = Resources.Load<Sprite>("Sprites/Spells/" + ReadySpells[c]);
+        }
+        for(int c =spellSlotsL; c < 4; ++c)
+        {
+            SpellImages[c].gameObject.SetActive(false);
+        }
+        for(int c = spellSlotsR + 4; c < 8; ++c)
+        {
+            SpellImages[c].gameObject.SetActive(false);
+        }
+    }
 
     // Camera / components
     Vector3 forward_CAM;
@@ -40,7 +82,8 @@ public class PlayerMovement : MonoBehaviour
         ik = GetComponent<BipedIK>();
         // put sword sheathed
         WeaponChanged();
-        
+
+        UpdateSpellUI();
         //Cursor.visible = false;
     }
 
@@ -594,36 +637,96 @@ public class PlayerMovement : MonoBehaviour
 
     void EndOfSpellCast(int i)
     {
-
-        // this is where you would instantiate the selected spell
-        Instantiate(Resources.Load("Spells/0"), transform.position + transform.forward * 1.4f + transform.up * 1f, transform.rotation);
         customvelocity = false;
         isSpellCasting = false;
         isPerformingAction = false;
         isPerformingQuickAction = false;
         hasOverwritingLegAnimation = false;
         isAttacking = false;
+        if (!didspellcast)
+        {
+            CastSpell(0);
+        }
+        didspellcast = false;
+    }
+    bool didspellcast = false;
+    void CastSpell(int i)
+    {
+        // this is where you would instantiate the selected spell
+        Instantiate(Resources.Load("Spells/" + SpellBeingCast), transform.position + transform.forward * 1.4f + transform.up * 1f, transform.rotation);
+        didspellcast = true;
     }
 
 
     bool isSpellCasting = false;
-    
-    void BeginCastSpell()
+
+    string SpellBeingCast = "";
+
+
+    public AnimationClip defaultOffSpell, defaultDefSpell;
+
+    // change spell cast animation
+    void SpellANIMOFF(string spell)
     {
-        p.LoseStamina(30f);
+        RuntimeAnimatorController cn = anm.runtimeAnimatorController;
+        AnimatorOverrideController ov = new AnimatorOverrideController();
+        ov.runtimeAnimatorController = cn;
+
+        AnimationClip animation = Resources.Load<AnimationClip>("Animations/Spells/" + spell);
+        if(animation == null)
+        {
+            animation = defaultOffSpell;
+        }  
+
+        animation.name = "CastSpell";
+        ov["CastSpell"] = animation;
+        
+        anm.runtimeAnimatorController = ov;
+ 
+    }
+
+    // change spell cast animation
+    void SpellANIMDEF(string spell)
+    {
+        RuntimeAnimatorController cn = anm.runtimeAnimatorController;
+        AnimatorOverrideController ov = new AnimatorOverrideController();
+        ov.runtimeAnimatorController = cn;
+
+        AnimationClip animation = Resources.Load<AnimationClip>("Animations/Spells/" + spell);
+        if (animation == null)
+        {
+            animation = defaultDefSpell;
+        }
+
+        animation.name = "SelfSpell";
+        ov["SelfSpell"] = animation;
+
+        anm.runtimeAnimatorController = ov;
+
+    }
+
+    void BeginCastSpell(int spell)
+    {
+        p.LoseStamina(SpellCosts[spell] * p.MaximumStamina);
+
+        SpellANIMOFF(ReadySpells[spell]);
         cc.constraints = RigidbodyConstraints.FreezeRotation;
         isPerformingAction = true;
         isPerformingQuickAction = true;
         customvelocity = true;
         isSpellCasting = true;
         isAttacking = true;
-            anm.SetTrigger("SpellCastTrigger");
+        anm.SetTrigger("SpellCastTrigger");
         customveloc = Vector3.zero;
+        SpellBeingCast = ReadySpells[spell];
     }
 
-    void BeginCastSelfSpell()
+    void BeginCastSelfSpell(int spell)
     {
-        p.LoseStamina(30f);
+        p.LoseStamina(SpellCosts[spell] * p.MaximumStamina);
+
+        SpellANIMDEF(ReadySpells[spell]);
+
         cc.constraints = RigidbodyConstraints.FreezeRotation;
         isPerformingAction = true;
         isPerformingQuickAction = true;
@@ -632,6 +735,7 @@ public class PlayerMovement : MonoBehaviour
         isAttacking = true;
         anm.SetTrigger("SelfSpellTrigger");
         customveloc = Vector3.zero;
+        SpellBeingCast = ReadySpells[spell];
     }
 
     // current coroutine being performed
@@ -1287,19 +1391,7 @@ public class PlayerMovement : MonoBehaviour
                 RollIsQueued = true;
             }
         }
-        // spell casting
 
-        if(grounded && isWeaponSheathed && p.isAbleToAttack && !isPerformingAction && !isPerformingQuickAction && !isSpellCasting)
-        {
-            if(Input.GetButton("Attack") )
-            {
-                BeginCastSpell();
-            }
-            if (Input.GetButton("Attack2"))
-            {
-                BeginCastSelfSpell();
-            }
-        }
 
 
         if (grounded && !isWeaponSheathed && p.isAbleToAttack)
@@ -1323,8 +1415,9 @@ public class PlayerMovement : MonoBehaviour
             }
 
             // ATTACK
-            if (Input.GetButton("Attack") || QUEUELightAttack)
+            if (attack1pressed || QUEUELightAttack)
             {
+                attack1pressed = false;
                 // if already attacking, queue the next attack
                 bool gotem = false;
                 if (isAttacking && !isHeavyAttacking)
@@ -1370,8 +1463,9 @@ public class PlayerMovement : MonoBehaviour
                 }
             }
             // HEAVY ATTACK
-            if (Input.GetButton("Attack2") || QUEUEHeavyAttack)
+            if (attack2pressed || QUEUEHeavyAttack)
             {
+                attack2pressed = false;
                 bool gotem = false;
                 // if already heavy attacking queue the next heavy attack
                 if (isHeavyAttacking)
@@ -1639,7 +1733,9 @@ public class PlayerMovement : MonoBehaviour
 
     public GameObject menuCanvas;
     public bool MenuIsUp = false;
-    
+
+    bool attack1pressed = false, attack2pressed = false;
+
     void Update()
     {
 
@@ -1649,6 +1745,15 @@ public class PlayerMovement : MonoBehaviour
         } else
         {
             attack1held = false;
+        }
+
+        if (Input.GetButtonDown("Attack"))
+        {
+            attack1pressed = true;
+        }
+        if (Input.GetButtonDown("Attack2"))
+        {
+            attack2pressed = false;
         }
 
         if (Input.GetButton("Attack2"))
@@ -1701,5 +1806,87 @@ public class PlayerMovement : MonoBehaviour
                 menuCanvas.GetComponent<StartMenuScript>().StartUpMenu();
             }
         }
+
+        // spell casting
+
+        if (isWeaponSheathed && isGrounded() && p.isAbleToAttack && !isPerformingAction && !isPerformingQuickAction && !isSpellCasting)
+        {
+            if (Input.GetButtonDown("Off Spell 1") && spellSlotsL > 0 && SpellCharges[0] > 0 && SpellCDs[0] <= SpellTimers[0])
+            {
+                BeginCastSpell(0);
+                SpellTimers[0] = 0;
+                SpellCharges[0] -= 1;
+            }
+            if (Input.GetButtonDown("Off Spell 2") && spellSlotsL > 1 && SpellCharges[1] > 0 && SpellCDs[1] <= SpellTimers[1])
+            {
+                BeginCastSpell(1);
+                SpellTimers[1] = 0;
+                SpellCharges[1] -= 1;
+            }
+            if (Input.GetButtonDown("Off Spell 3") && spellSlotsL > 2 && SpellCharges[2] > 0 && SpellCDs[2] <= SpellTimers[2])
+            {
+                BeginCastSpell(2);
+                SpellTimers[2] = 0;
+                SpellCharges[2] -= 1;
+            }
+            if (Input.GetButtonDown("Off Spell 4") && spellSlotsL > 3 && SpellCharges[3] > 0 && SpellCDs[3] <= SpellTimers[3])
+            {
+                BeginCastSpell(3);
+                SpellTimers[3] = 0;
+                SpellCharges[3] -= 1;
+            }
+            if (Input.GetButtonDown("Def Spell 1") && spellSlotsR > 0 && SpellCharges[4] > 0 && SpellCDs[4] <= SpellTimers[4])
+            {
+                BeginCastSelfSpell(4);
+                SpellTimers[4] = 0;
+                SpellCharges[4] -= 1;
+            }
+            if (Input.GetButtonDown("Def Spell 2") && spellSlotsR > 1 && SpellCharges[5] > 0 && SpellCDs[5] <= SpellTimers[5])
+            {
+                BeginCastSelfSpell(5);
+                SpellTimers[5] = 0;
+                SpellCharges[5] -= 1;
+            }
+            if (Input.GetButtonDown("Def Spell 3") && spellSlotsR > 2 && SpellCharges[6] > 0 && SpellCDs[6] <= SpellTimers[6])
+            {
+                BeginCastSelfSpell(6);
+                SpellTimers[6] = 0;
+                SpellCharges[6] -= 1;
+            }
+            if (Input.GetButtonDown("Def Spell 4") && spellSlotsR > 3 && SpellCharges[7] > 0 && SpellCDs[7] <= SpellTimers[7])
+            {
+                BeginCastSelfSpell(7);
+                SpellTimers[7] = 0;
+                SpellCharges[7] -= 1;
+            }
+        }
+
+        // handle cooldowns
+
+        for(int c = 0; c < SpellCDs.Length; ++c)
+        {
+            if(SpellTimers[c] < SpellCDs[c])
+            {
+                SpellTimers[c] += Time.deltaTime;
+            }
+        }
+
+        // update ui
+        for(int c = 0; c < SpellCDs.Length; ++c)
+        {
+            if(SpellTimers[c] < SpellCDs[c])
+            {
+                // text
+                SpellCDsUI[c].enabled = true;
+                SpellCDsUIBox[c].gameObject.SetActive(true);
+                SpellCDsUI[c].text = (SpellCDs[c] - SpellTimers[c]).ToString("F2");
+            } else
+            {
+                SpellCDsUIBox[c].gameObject.SetActive(false);
+                SpellCDsUI[c].enabled = false;
+            }
+            SpellChargesUI[c].text = "x" + SpellCharges[c].ToString();
+        }
+        
     }
 }

@@ -27,7 +27,7 @@ public class Player : Character
 
     public string EquippedHat, EquippedAmulet, EquippedTunic, EquippedRing1, EquippedRing2, EquippedArmor, EquippedCape;
 
-    // Multiplied by all spell base damage.
+    // Multiplied by all spell base damage. RAISES HIGHEST STAT OF SPELL
     public float spellPower = 1f;
 
     // Head reference for placing Hats
@@ -80,7 +80,7 @@ public class Player : Character
         EquippedCape = "White Banner";
         EquippedRing1 = "None";
         EquippedRing2 = "None";
-        EquippedArmor = "Tightened";
+        EquippedArmor = "Tightened Steel Plate";
         EquippedAmulet = "None";
         CurrentHealth = MaximumHealth;
         pm = GetComponent<PlayerMovement>();
@@ -99,15 +99,18 @@ public class Player : Character
         pi.AddRing("Ruby Ring");
         pi.AddRing("Ruby Ring");
         pi.AddTunic("Chain Curiass");
-        pi.AddArmor("Tightened");
-        pi.AddArmor("Magister");
+        pi.AddArmor("Tightened Steel Plate");
+        pi.AddArmor("Magister's Regalia");
         pi.AddCape("None");
         pi.AddCape("White Banner");
         pi.AddCape("Black Banner");
+        pi.AddHat("Magus Hood");
+
+        //LoadArmor();
     }
 
     // INSTANCE OF CURRENTLY EQUIPPED HAT
-    public GameObject Hat;
+    public GameObject Hat, Hair;
 
     // location of neck
     public Transform Neck;
@@ -130,6 +133,16 @@ public class Player : Character
         HatScript h = Hat.GetComponent<HatScript>();
         Hat.transform.localPosition = h.pos;
         Hat.transform.localRotation = h.rot;
+        if (h.hideshair)
+        {
+            Hair.transform.GetChild(0).GetComponent<SkinnedMeshRenderer>().enabled = false;
+            //Hair.SetActive(false);
+        } else
+        {
+            Hair.transform.GetChild(0).GetComponent<SkinnedMeshRenderer>().enabled = true;
+
+            //Hair.SetActive(true);
+        }
     }
 
     public void LoadArmor()
@@ -183,6 +196,7 @@ public class Player : Character
     {
         if (EquippedAmulet == null || EquippedAmulet == "None")
         {
+            Destroy(Amulet);
             return;
         }
         if (Amulet != null)
@@ -200,6 +214,7 @@ public class Player : Character
     {
         if (EquippedTunic == null || EquippedTunic == "None")
         {
+            Destroy(Tunic);
             return;
         }
         if (Tunic != null)
@@ -217,6 +232,7 @@ public class Player : Character
     {
         if (EquippedRing1 == null || EquippedRing1 == "None")
         {
+            Destroy(Ring1);
             return;
         }
         if (Ring1 != null)
@@ -234,6 +250,7 @@ public class Player : Character
     {
         if (EquippedRing2 == null || EquippedRing2 == "None")
         {
+            Destroy(Ring2);
             return;
         }
         if (Ring2 != null)
@@ -448,7 +465,7 @@ public class Player : Character
         float rsmf = (Mathf.Pow(-1.1f * percent + 1f, 3f) + 3f / 2f) * 2f;
         RunSpeed = rsmf + RUNSPEED_weaponbonus + RUNSPEED_armorbonus + RUNSPEED_hatbonus + RUNSPEED_ringbonus + RUNSPEED_amuletbonus + RUNSPEED_buffbonus;
         RunSpeed = Mathf.Clamp(RunSpeed, 1f, 8f);
-        if(percent >= 2)
+        if(percent >= 2 || percent < 0)
         {
             RunSpeed = 0.5f;
         }

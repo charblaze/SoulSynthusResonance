@@ -224,6 +224,7 @@ public class StartMenuScript : MonoBehaviour {
         for(int c = 0; c < weps.Count; ++c)
         {
             GameObject butt = Instantiate(Resources.Load("UI/WepButton")) as GameObject;
+            butt.GetComponent<Hov>().ID = pi.Weapons[c].WeaponID;
             butt.transform.SetParent(contentWEP);
             Text t = butt.transform.GetChild(0).GetComponent<Text>();
             t.text = weps[c].WeaponID;
@@ -236,6 +237,7 @@ public class StartMenuScript : MonoBehaviour {
     {
         b.onClick.AddListener(() => EquipWeapon(value));
     }
+    
 
     /*
         -- END OF WEAPONS -- 
@@ -255,6 +257,10 @@ public class StartMenuScript : MonoBehaviour {
     
     public void EquipHat(int c)
     {
+        if(pi.Hats[c].ID == p.EquippedHat)
+        {
+            return;
+        }
         p.EquippedHat = pi.Hats[c].ID;
         p.LoadHat();
         EquipPaneChanged(EquipmentPaneOpen);
@@ -262,20 +268,32 @@ public class StartMenuScript : MonoBehaviour {
 
     public void EquipAmulet(int c)
     {
+        if(pi.Amulets[c].ID == p.EquippedAmulet)
+        {
+            return;
+        }
         p.EquippedAmulet = pi.Amulets[c].ID;
         p.LoadAmulet(); EquipPaneChanged(EquipmentPaneOpen);
     }
 
     public void EquipTunic(int c)
     {
+        if(pi.Tunics[c].ID == p.EquippedTunic)
+        {
+            return;
+        }
         p.EquippedTunic = pi.Tunics[c].ID;
         p.LoadTunic(); EquipPaneChanged(EquipmentPaneOpen);
     }
 
     public void EquipRing(int c, int slot)
     {
-        if(slot == 1)
+        if((pi.Rings[c].ID == p.EquippedRing1 || pi.Rings[c].ID == p.EquippedRing2) && pi.Rings[c].ID != "None")
         {
+            return;
+        }
+        if(slot == 1)
+        { 
             p.EquippedRing1 = pi.Rings[c].ID;
             p.LoadRing1();
         }  else
@@ -288,12 +306,20 @@ public class StartMenuScript : MonoBehaviour {
 
     public void EquipArmor(int c)
     {
+        if(pi.Armors[c].ID == p.EquippedArmor)
+        {
+            return;
+        }
         p.EquippedArmor = pi.Armors[c].ID;
         p.LoadArmor(); EquipPaneChanged(EquipmentPaneOpen);
     }
 
     public void EquipCape(int c)
     {
+        if (pi.Capes[c].ID == p.EquippedCape)
+        {
+            return;
+        }
         p.EquippedCape = pi.Capes[c].ID;
         p.LoadCape(); EquipPaneChanged(EquipmentPaneOpen);
     }
@@ -341,10 +367,12 @@ public class StartMenuScript : MonoBehaviour {
             for (int c = 0; c < pi.Hats.Count; ++c)
             {
                 GameObject butt = Instantiate(Resources.Load("UI/EquipButton")) as GameObject;
+                butt.GetComponent<Hov>().ID = pi.Hats[c].ID;
                 butt.transform.SetParent(contentEQU);
                 Text t = butt.transform.GetChild(0).GetComponent<Text>();
                 t.text = pi.Hats[c].ID;
                 Button b = butt.GetComponent<Button>();
+                
                 AddListenerHat(b, c);
                 if(pi.Hats[c].ID == p.EquippedHat && !eqd)
                 {
@@ -359,6 +387,7 @@ public class StartMenuScript : MonoBehaviour {
             for (int c = 0; c < pi.Amulets.Count; ++c)
             {
                 GameObject butt = Instantiate(Resources.Load("UI/EquipButton")) as GameObject;
+                butt.GetComponent<Hov>().ID = pi.Amulets[c].ID;
                 butt.transform.SetParent(contentEQU);
                 Text t = butt.transform.GetChild(0).GetComponent<Text>();
                 t.text = pi.Amulets[c].ID;
@@ -398,6 +427,7 @@ public class StartMenuScript : MonoBehaviour {
                     }
                 }
                 GameObject butt = Instantiate(Resources.Load("UI/EquipButton")) as GameObject;
+                butt.GetComponent<Hov>().ID = pi.Rings[c].ID;
                 butt.transform.SetParent(contentEQU);
                 Text t = butt.transform.GetChild(0).GetComponent<Text>();
                 t.text = pi.Rings[c].ID;
@@ -425,6 +455,7 @@ public class StartMenuScript : MonoBehaviour {
                     }
                 }
                 GameObject butt = Instantiate(Resources.Load("UI/EquipButton")) as GameObject;
+                butt.GetComponent<Hov>().ID = pi.Rings[c].ID;
                 butt.transform.SetParent(contentEQU);
                 Text t = butt.transform.GetChild(0).GetComponent<Text>();
                 t.text = pi.Rings[c].ID;
@@ -442,6 +473,7 @@ public class StartMenuScript : MonoBehaviour {
             for (int c = 0; c < pi.Armors.Count; ++c)
             {
                 GameObject butt = Instantiate(Resources.Load("UI/EquipButton")) as GameObject;
+                butt.GetComponent<Hov>().ID = pi.Armors[c].ID;
                 butt.transform.SetParent(contentEQU);
                 Text t = butt.transform.GetChild(0).GetComponent<Text>();
                 t.text = pi.Armors[c].ID;
@@ -460,6 +492,7 @@ public class StartMenuScript : MonoBehaviour {
             for (int c = 0; c < pi.Capes.Count; ++c)
             {
                 GameObject butt = Instantiate(Resources.Load("UI/EquipButton")) as GameObject;
+                butt.GetComponent<Hov>().ID = pi.Capes[c].ID;
                 butt.transform.SetParent(contentEQU);
                 Text t = butt.transform.GetChild(0).GetComponent<Text>();
                 t.text = pi.Capes[c].ID;

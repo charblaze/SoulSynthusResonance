@@ -5,6 +5,8 @@ public class Character : MonoBehaviour {
 
     // BASE CLASS FOR ANYTHING THAT CAN BE KILLED BASICALLY (enemies, player, npcs)
 
+    public Transform buffloc;
+
     // basic RPG Stats
     public int BaseHealth = 250;
     public float BaseStamina;
@@ -308,6 +310,19 @@ public class Character : MonoBehaviour {
         if(CurrentHealth < 0)
         {
             Die();
+        }
+    }
+
+    /// <summary>
+    /// Gain a raw amount of health.
+    /// </summary>
+    /// <param name="amount"></param>
+    public void GainHealth(int amount)
+    {
+        CurrentHealth += amount;
+        if(CurrentHealth > MaximumHealth)
+        {
+            CurrentHealth = MaximumHealth;
         }
     }
 
